@@ -11,5 +11,4 @@ final class FileReaderTests: XCTestCase {
         let reader = LocalFileReader(fileManager: mockFileManager)
         try XCTAssertEqual(reader.readFile(inputFilePath: "TestingReaderFile.txt"), "This is test")
     }
-
 }
