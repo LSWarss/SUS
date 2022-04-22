@@ -2,12 +2,14 @@ import XCTest
 
 @testable import SUS
 
-final class FileReaderTests: XCTestCase { 
+final class FileReaderTests: XCTestCase {
+    
+    let mockFileManager: MockFileManager = MockFileManager()
 
     func testLocalFileReader() throws {
-        let reader = LocalFileReader()
-        let bundle = Bundle(for: Self.self)
-        try XCTAssertEqual(reader.readFile(inputFilePath: "TestingReaderFile.txt", in: bundle), "This is test")
+        mockFileManager.mockContent = "This is test"
+        let reader = LocalFileReader(fileManager: mockFileManager)
+        try XCTAssertEqual(reader.readFile(inputFilePath: "TestingReaderFile.txt"), "This is test")
     }
 
 }
