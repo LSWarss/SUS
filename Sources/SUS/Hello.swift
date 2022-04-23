@@ -19,6 +19,8 @@ struct Hello: ParsableCommand {
     
     func run() throws {
         let localReader = LocalFileReader()
-        print(try localReader.readFile(inputFilePath: name))
+        let localWriter = LocalFileWriter()
+        let content = try localReader.readFile(inputFilePath: name)
+        try localWriter.writeToFile(fileName: "test_\(name)", content: content.data(using: .utf8))
     }
 }
