@@ -19,6 +19,10 @@ let package = Package(
             dependencies: ["SUS"]),
         .testTarget(
             name: "UtilsTests",
-            dependencies: ["SUS"])
+            dependencies: ["SUS"]),
+        .testTarget(
+            name: "FeaturesTests",
+            dependencies: ["SUS"]
+        )
     ]
 )

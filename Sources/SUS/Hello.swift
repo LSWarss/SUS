@@ -21,6 +21,6 @@ struct Hello: ParsableCommand {
         let localReader = LocalFileReader()
         let localWriter = LocalFileWriter()
         let content = try localReader.readFile(inputFilePath: name)
-        try localWriter.writeToFile(fileName: "test_\(name)", content: content.data(using: .utf8))
+        try localWriter.writeToFile(fileName: "\(name)", content: content.data(using: .utf8))
     }
 }
