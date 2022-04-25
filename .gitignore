@@ -90,3 +90,5 @@ fastlane/test_output
 iOSInjectionProject/
 .vscode
 .swiftpm
+default.profraw
+Package.resolved

@@ -16,8 +16,11 @@ struct Hello: ParsableCommand {
     
     @Argument(help: "Name of the person to which the hello goes to")
     private var name: String
-        
+    
     func run() throws {
-        print("Hello \(name)!")
+        let localReader = LocalFileReader()
+        let localWriter = LocalFileWriter()
+        let content = try localReader.readFile(inputFilePath: name)
+        try localWriter.writeToFile(fileName: "\(name)", content: content.data(using: .utf8))
     }
 }
