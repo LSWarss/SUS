@@ -8,10 +8,10 @@
 import Foundation
 
 protocol DecisionTreeTableCreator {
-    func CreateDecisionTreeTable() throws -> String
+    func CountAttributes() throws -> [AttributesMap]
 }
 
-typealias AttributesMap = [[String: Int]]
+typealias AttributesMap = [String: Int]
 
 class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     
@@ -23,64 +23,31 @@ class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
         self.content = content
     }
     
-    func CreateDecisionTreeTable() throws -> String {
-        let attributesMap: AttributesMap = createAttributesMap()
-        var resultString = ""
-        content.enumerateLines { line, stop in
-            let temp = line.split(separator: ",")
-            var tempString = ""
-            for (i, str) in temp.enumerated() {
-                print(str)
-                
-                let value = attributesMap[i].filter { $0.key == str }
-                
-                print(value)
-                
-                tempString += value.values.first?.description ?? ""
-                
-                if i != temp.count {
-                    tempString += ","
-                }
-            }
-            
-            
-            resultString.append("\(tempString)\n")
-        }
-        
-        return resultString
+    func CountAttributes() throws -> [AttributesMap] {
+        return createAttributesMapArray()
     }
 }
 
 private extension DecisionTreeTableCreatorImpl {
     
-    func createAttributesMap() -> AttributesMap {
-        var attributes: [[String]] = []
+    func createAttributesMapArray() -> [AttributesMap] {
+        var attributes: [AttributesMap] = []
         content.enumerateLines { line, stop in
             let temp = line.split(separator: ",")
             
             for (i, str) in temp.enumerated() {
                 if attributes.count <= i {
-                    attributes.append([String(str)])
+                    attributes.append([String(str): 1])
                 } else {
-                    if attributes[i].contains(String(str)) {
-                        continue
+                    if let number = attributes[i][String(str)] {
+                        attributes[i][String(str)] = number + 1
                     } else {
-                        attributes[i].append(String(str))
+                        attributes[i][String(str)] = 1
                     }
                 }
             }
         }
         
-        let attributesMap: AttributesMap = attributes.map { attributesArray in
-            var temp: [String: Int] = [:]
-            
-            for (i, attribute) in attributesArray.enumerated() {
-                temp.updateValue((attributesArray.count - 1) - i, forKey: attribute)
-            }
-            
-            return temp
-        }
-        
-        return attributesMap
+        return attributes
     }
 }
