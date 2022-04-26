@@ -9,8 +9,6 @@ import XCTest
 @testable import SUS
 
 final class DecisionTreeTableCreatorTests: XCTestCase {
-    
-    let mockFileManager: MockFileManager = MockFileManager()
     let testingTable: String = """
         old,yes,swr,down
         old,no,swr,down
@@ -24,6 +22,13 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
         new,no,swr,up
         """
     
-    
+    func testCountAttributes() throws {
+        let creator = DecisionTreeTableCreatorImpl(content: testingTable)
+            
+        let wantAttributes: [AttributesMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
+        let attributes = try creator.CountAttributes()
+        
+        XCTAssertEqual(wantAttributes, attributes)
+    }
 }
 
