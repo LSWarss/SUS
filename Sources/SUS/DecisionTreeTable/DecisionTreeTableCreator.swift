@@ -15,11 +15,9 @@ typealias AttributesMap = [String: Int]
 
 class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     
-    private let fileWriter: FileWriter
     private let content: String
     
-    init(fileWriter: FileWriter, content: String) {
-        self.fileWriter = fileWriter
+    init(content: String) {
         self.content = content
     }
     
