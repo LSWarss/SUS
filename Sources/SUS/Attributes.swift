@@ -22,10 +22,10 @@ struct Attributes: ParsableCommand {
         let localReader = LocalFileReader()
         let localWriter = LocalFileWriter()
         let content = try localReader.readFile(inputFilePath: path)
-        let creator = DecisionTreeTableCreatorImpl(content: content)
+        let creator = DecisionTreeAttributesCreatorImpl(content: content)
         let attributes = try creator.CountAttributes().description
         
-        print(attributes)
+        SUSLogger.shared.info("\(attributes)")
         try localWriter.writeToFile(fileName: "\(path.fileName())_Attributes.\(path.fileExtension())", content: attributes.data(using: .utf8))
     }
 }

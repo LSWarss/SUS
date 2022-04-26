@@ -7,13 +7,13 @@
 
 import Foundation
 
-protocol DecisionTreeTableCreator {
+protocol DecisionTreeAttributesCreator {
     func CountAttributes() throws -> [AttributesMap]
 }
 
-typealias AttributesMap = [String: Int]
+typealias AttributesMap = [String: Double]
 
-class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
+final class DecisionTreeAttributesCreatorImpl: DecisionTreeAttributesCreator {
     
     private let content: String
     
@@ -26,7 +26,7 @@ class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     }
 }
 
-private extension DecisionTreeTableCreatorImpl {
+private extension DecisionTreeAttributesCreatorImpl {
     
     func createAttributesMapArray() -> [AttributesMap] {
         var attributes: [AttributesMap] = []
