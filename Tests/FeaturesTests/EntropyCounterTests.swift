@@ -12,13 +12,28 @@ import XCTest
 class EntropyCounterTests: XCTestCase {
 
     let testAttributes: [AttributesMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
+    let failAttributes: [AttributesMap] = []
+    let entopyCounter = EntropyCounterImpl()
     
     func testCalculateEntropy() throws {
-        let entopyCounter = EntropyCounterImpl()
-        
-        let entropyValue = try entopyCounter.calculateEntropy(attributes: testAttributes)
+        let entropyValue = try entopyCounter.CalculateEntropy(attributes: testAttributes)
         let wantEntropyValue = 1.0
         
         XCTAssertEqual(wantEntropyValue, entropyValue)
+    }
+    
+    func testCalculateEntropyNoDecisionError() throws {
+        do {
+            let _ = try entopyCounter.CalculateEntropy(attributes: failAttributes)
+        } catch {
+            XCTAssertEqual(error as! EntropyErrors, EntropyErrors.noDecisions)
+        }
+    }
+    
+    func testCalculateDecisionCount() throws {
+        let decisions: AttributesMap = ["down": 5, "up": 5]
+        
+        let decisionCount = entopyCounter.CalculateDecisionCount(decisions: decisions)
+        XCTAssertEqual(decisionCount, 10)
     }
 }

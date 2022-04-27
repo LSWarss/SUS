@@ -22,7 +22,7 @@ struct Attributes: ParsableCommand {
         let localReader = LocalFileReader()
         let localWriter = LocalFileWriter()
         let content = try localReader.readFile(inputFilePath: path)
-        let creator = DecisionTreeAttributesCreatorImpl(content: content)
+        let creator = DecisionTreeCreatorImpl(content: content)
         let attributes = try creator.CountAttributes().description
         
         SUSLogger.shared.info("\(attributes)")

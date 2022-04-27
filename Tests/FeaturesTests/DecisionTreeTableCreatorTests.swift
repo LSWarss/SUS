@@ -23,7 +23,7 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
         """
     
     func testCountAttributes() throws {
-        let creator = DecisionTreeAttributesCreatorImpl(content: testingTable)
+        let creator = DecisionTreeCreatorImpl(content: testingTable)
             
         let wantAttributes: [AttributesMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
         let attributes = try creator.CountAttributes()
