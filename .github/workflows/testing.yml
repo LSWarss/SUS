@@ -17,4 +17,7 @@ jobs:
       - name: Run tests
         run: swift test
       - name: Coverage
-        run:  curl -Os https://uploader.codecov.io/latest/macos/codecov chmod +x codecov ./codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/macos/codecov
+          chmod +x codecov
+          ./codecov
