@@ -21,3 +21,5 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/macos/codecov
           chmod +x codecov
           ./codecov -f $(swift test --show-codecov-path)
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
