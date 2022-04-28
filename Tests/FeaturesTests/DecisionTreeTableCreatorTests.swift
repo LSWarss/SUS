@@ -81,10 +81,38 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
         XCTAssertEqual(want, got.attributes)
     }
     
+    func testGetRowNumbersWithAttributeOld() throws {
+        let got = creator!.CreateDecisionsTreeTable().getRowNumbersWithAttribute("old")
+        let want = [0,1,2]
+        
+        XCTAssertEqual(got, want)
+    }
+    
+    func testGetRowNumbersWithAttributeMid() throws {
+        let got = creator!.CreateDecisionsTreeTable().getRowNumbersWithAttribute("mid")
+        let want = [3,4,5,6]
+        
+        XCTAssertEqual(got, want)
+    }
+    
+    func testGetRowNumbersWithAttributeNew() throws {
+        let got = creator!.CreateDecisionsTreeTable().getRowNumbersWithAttribute("new")
+        let want = [7,8,9]
+        
+        XCTAssertEqual(got, want)
+    }
+    
+    func testGetDecisionsMap() throws {
+        let got = creator!.CreateDecisionsTreeTable().getDecisionsMapForAttribute("mid")
+        let want: AttributesCountMap = ["down": 2, "up" : 2]
+        
+        XCTAssertEqual(got, want)
+    }
+    
     func testCountAttributes() throws {
         let creator = DecisionTreeTableCreatorImpl(content: testingTable)
             
-        let wantAttributes: [AttributesMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
+        let wantAttributes: [AttributesCountMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
         let attributes = try creator.CountAttributes()
         
         XCTAssertEqual(wantAttributes, attributes)

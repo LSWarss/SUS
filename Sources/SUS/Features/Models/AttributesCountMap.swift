@@ -7,4 +7,4 @@
 
 import Foundation
 
-typealias AttributesMap = [String: Double]
+typealias AttributesCountMap = [String: Double]

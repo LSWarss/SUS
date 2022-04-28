@@ -8,40 +8,40 @@
 import Foundation
 
 protocol InformationFunctionCounter {
-    func CalculateInformationFunction(attributes: [AttributesMap]) throws -> [Double]
+    func CalculateInformationFunction(attributes: [AttributesCountMap]) throws -> [Double]
 }
 
 final class InformationFunctionCounterImpl: InformationFunctionCounter {
     
     let entropyCounter: EntropyCounter
+    let decisionTreeTable: DecisionTreeTable
     
-    init(entropyCounter: EntropyCounter) {
+    init(entropyCounter: EntropyCounter, decisionTreeTable: DecisionTreeTable) {
         self.entropyCounter = entropyCounter
+        self.decisionTreeTable = decisionTreeTable
     }
     
-    func CalculateInformationFunction(attributes: [AttributesMap]) throws -> [Double] {
-        guard let decisions = attributes.last else {
-            throw EntropyErrors.noDecisions
+    func CalculateInformationFunction(attributes: [AttributesCountMap]) throws -> [Double] {
+        var temp: Double = 0
+        var results: [Double] = []
+        
+        for attribute in attributes.dropLast() {
+            for attr in attribute {
+                temp += try calculateEntropyForAttribute(attr.key) * (attr.value / decisionTreeTable.decisionsCount)
+            }
+            results.append(temp)
+            temp = 0
         }
-        
-        let attributesCount = entropyCounter.CalculateDecisionCount(decisions: decisions)
-        
-        let informationCounts: [Double] = []
-//        for attribute in attributes {
-//            if attributes.last
-//            let count = attribute.value / attributesCount * entropyCounter.CalculateEntropy(attributes: <#T##[AttributesMap]#>)
-//        }
-        
-        return [0]
+
+        return results
     }
 }
 
 private extension InformationFunctionCounterImpl {
     
-//    func calculateInformationFunction(attributes: AttributesMap, decisions: AttributesMap, attributesCount: Double) throws -> Double {
-//        for attribute in attributes {
-//            let entropy = try entropyCounter.CalculateEntropy(decisions: decisions)
-//            let attribute.value / attributesCount * entropy
-//        }
-//    }
+    /// Calculates entropy of decisions for given attribute in DecisionTreeTable
+    func calculateEntropyForAttribute(_ attribute: String) throws -> Double {
+        let decisions = decisionTreeTable.getDecisionsMapForAttribute(attribute)
+        return entropyCounter.CalculateEntropy(decisions: decisions)
+    }
 }

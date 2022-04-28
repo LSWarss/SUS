@@ -7,23 +7,19 @@
 
 import Foundation
 
-enum EntropyErrors: Error {
-    case noDecisions
-}
-
 protocol EntropyCounter {
-    func CalculateEntropy(decisions: AttributesMap) throws -> Double
-    func CalculateDecisionCount(decisions: AttributesMap) -> Double
+    func CalculateEntropy(decisions: AttributesCountMap) -> Double
+    func CalculateDecisionCount(decisions: AttributesCountMap) -> Double
 }
 
 final class EntropyCounterImpl: EntropyCounter {
     
-    func CalculateEntropy(decisions: AttributesMap) throws -> Double {
+    func CalculateEntropy(decisions: AttributesCountMap) -> Double {
         let decisionsCount = CalculateDecisionCount(decisions: decisions)
         return calculateEntropy(decisions: decisions, decisionsCount: decisionsCount)
     }
     
-    func CalculateDecisionCount(decisions: AttributesMap) -> Double {
+    func CalculateDecisionCount(decisions: AttributesCountMap) -> Double {
         var decisionsCount: Double = 0
         for decision in decisions {
             decisionsCount += decision.value
@@ -35,7 +31,7 @@ final class EntropyCounterImpl: EntropyCounter {
 
 private extension EntropyCounterImpl {
     
-    func calculateEntropy(decisions: AttributesMap, decisionsCount: Double) -> Double {
+    func calculateEntropy(decisions: AttributesCountMap, decisionsCount: Double) -> Double {
         var entropy: Double = 0
         for decision in decisions {
             let p = Double(decision.value / decisionsCount)
