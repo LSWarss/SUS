@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DecisionTreeTable.swift
 //  
 //
 //  Created by Łukasz Stachnik on 23/04/2022.
@@ -7,13 +7,12 @@
 
 import Foundation
 
-protocol DecisionTreeAttributesCreator {
-    func CountAttributes() throws -> [AttributesMap]
+protocol DecisionTreeTableCreator {
+    func CountAttributes() throws -> [AttributesCountMap]
+    func CreateDecisionsTreeTable() -> DecisionTreeTable
 }
 
-typealias AttributesMap = [String: Double]
-
-final class DecisionTreeAttributesCreatorImpl: DecisionTreeAttributesCreator {
+final class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     
     private let content: String
     
@@ -21,15 +20,25 @@ final class DecisionTreeAttributesCreatorImpl: DecisionTreeAttributesCreator {
         self.content = content
     }
     
-    func CountAttributes() throws -> [AttributesMap] {
+    func CreateDecisionsTreeTable() -> DecisionTreeTable {
+        var table: [[String]] = []
+        content.enumerateLines { line, stop in
+            let temp = line.split(separator: ",").map { String($0) }
+            table.append(temp)
+        }
+        
+        return DecisionTreeTable(table: table)
+    }
+    
+    func CountAttributes() throws -> [AttributesCountMap] {
         return createAttributesMapArray()
     }
 }
 
-private extension DecisionTreeAttributesCreatorImpl {
+private extension DecisionTreeTableCreatorImpl {
     
-    func createAttributesMapArray() -> [AttributesMap] {
-        var attributes: [AttributesMap] = []
+    func createAttributesMapArray() -> [AttributesCountMap] {
+        var attributes: [AttributesCountMap] = []
         content.enumerateLines { line, stop in
             let temp = line.split(separator: ",")
             
