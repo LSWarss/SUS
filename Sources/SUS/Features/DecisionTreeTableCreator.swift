@@ -1,5 +1,5 @@
 //
-//  DecisionTreeCreator.swift
+//  DecisionTreeTable.swift
 //  
 //
 //  Created by Łukasz Stachnik on 23/04/2022.
@@ -7,11 +7,12 @@
 
 import Foundation
 
-protocol DecisionTreeCreator {
+protocol DecisionTreeTableCreator {
     func CountAttributes() throws -> [AttributesMap]
+    func CreateDecisionsTreeTable() -> DecisionTreeTable
 }
 
-final class DecisionTreeCreatorImpl: DecisionTreeCreator {
+final class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     
     private let content: String
     
@@ -19,12 +20,22 @@ final class DecisionTreeCreatorImpl: DecisionTreeCreator {
         self.content = content
     }
     
+    func CreateDecisionsTreeTable() -> DecisionTreeTable {
+        var table: [[String]] = []
+        content.enumerateLines { line, stop in
+            let temp = line.split(separator: ",").map { String($0) }
+            table.append(temp)
+        }
+        
+        return DecisionTreeTable(table: table)
+    }
+    
     func CountAttributes() throws -> [AttributesMap] {
         return createAttributesMapArray()
     }
 }
 
-private extension DecisionTreeCreatorImpl {
+private extension DecisionTreeTableCreatorImpl {
     
     func createAttributesMapArray() -> [AttributesMap] {
         var attributes: [AttributesMap] = []

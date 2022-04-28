@@ -16,15 +16,24 @@ class EntropyCounterTests: XCTestCase {
     let entopyCounter = EntropyCounterImpl()
     
     func testCalculateEntropy() throws {
-        let entropyValue = try entopyCounter.CalculateEntropy(attributes: testAttributes)
+        let entropyValue = try entopyCounter.CalculateEntropy(decisions: testAttributes.last ?? [:])
         let wantEntropyValue = 1.0
+        
+        XCTAssertEqual(wantEntropyValue, entropyValue)
+    }
+    
+    func testCalculateEntropySmall() throws {
+        let smallAttributes: AttributesMap = ["down": 3]
+        
+        let entropyValue = try entopyCounter.CalculateEntropy(decisions: smallAttributes)
+        let wantEntropyValue = -0.0
         
         XCTAssertEqual(wantEntropyValue, entropyValue)
     }
     
     func testCalculateEntropyNoDecisionError() throws {
         do {
-            let _ = try entopyCounter.CalculateEntropy(attributes: failAttributes)
+            let _ = try entopyCounter.CalculateEntropy(decisions: failAttributes.last ?? [:])
         } catch {
             XCTAssertEqual(error as! EntropyErrors, EntropyErrors.noDecisions)
         }

@@ -12,17 +12,13 @@ enum EntropyErrors: Error {
 }
 
 protocol EntropyCounter {
-    func CalculateEntropy(attributes: [AttributesMap]) throws -> Double
+    func CalculateEntropy(decisions: AttributesMap) throws -> Double
     func CalculateDecisionCount(decisions: AttributesMap) -> Double
 }
 
 final class EntropyCounterImpl: EntropyCounter {
     
-    func CalculateEntropy(attributes: [AttributesMap]) throws -> Double {
-        guard let decisions = attributes.last else {
-            throw EntropyErrors.noDecisions
-        }
-        
+    func CalculateEntropy(decisions: AttributesMap) throws -> Double {
         let decisionsCount = CalculateDecisionCount(decisions: decisions)
         return calculateEntropy(decisions: decisions, decisionsCount: decisionsCount)
     }
