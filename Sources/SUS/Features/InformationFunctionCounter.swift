@@ -8,40 +8,31 @@
 import Foundation
 
 protocol InformationFunctionCounter {
-    func CalculateInformationFunction(attributes: [AttributesCountMap]) throws -> [Double]
+    func CalculateInformationFunction(attributes: [AttributesCountMap]) -> [Double]
 }
 
-final class InformationFunctionCounterImpl: InformationFunctionCounter {
+struct InformationFunctionCounterImpl: InformationFunctionCounter {
     
-    let entropyCounter: EntropyCounter
-    let decisionTreeTable: DecisionTreeTable
+    private let entropyCounter: EntropyCounter
+    var decisionTreeTable: DecisionTreeTable
     
     init(entropyCounter: EntropyCounter, decisionTreeTable: DecisionTreeTable) {
         self.entropyCounter = entropyCounter
         self.decisionTreeTable = decisionTreeTable
     }
     
-    func CalculateInformationFunction(attributes: [AttributesCountMap]) throws -> [Double] {
-        var temp: Double = 0
-        var results: [Double] = []
+    func CalculateInformationFunction(attributes: [AttributesCountMap]) -> [Double] {
+        var tempInfFuncValue: Double = 0 // temporary information function value
+        var attrResults: [Double] = []
         
         for attribute in attributes.dropLast() {
             for attr in attribute {
-                temp += try calculateEntropyForAttribute(attr.key) * (attr.value / decisionTreeTable.decisionsCount)
+                tempInfFuncValue += entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: attr.key) * (attr.value / decisionTreeTable.decisionsCount)
             }
-            results.append(temp)
-            temp = 0
+            attrResults.append(tempInfFuncValue)
+            tempInfFuncValue = 0
         }
 
-        return results
-    }
-}
-
-private extension InformationFunctionCounterImpl {
-    
-    /// Calculates entropy of decisions for given attribute in DecisionTreeTable
-    func calculateEntropyForAttribute(_ attribute: String) throws -> Double {
-        let decisions = decisionTreeTable.getDecisionsMapForAttribute(attribute)
-        return entropyCounter.CalculateEntropy(decisions: decisions)
+        return attrResults
     }
 }
