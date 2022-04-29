@@ -9,17 +9,17 @@ import Foundation
 
 protocol EntropyCounter {
     func CalculateEntropy(decisions: AttributesCountMap) -> Double
-    func CalculateDecisionCount(decisions: AttributesCountMap) -> Double
+    func CalculateDecisionCountFromAttributesMap(_ decisions: AttributesCountMap) -> Double
+    func CalculateEntropyForAttribute(decisionTreeTable: DecisionTreeTable, attribute: String) -> Double
 }
 
-final class EntropyCounterImpl: EntropyCounter {
+struct EntropyCounterImpl: EntropyCounter {
     
     func CalculateEntropy(decisions: AttributesCountMap) -> Double {
-        let decisionsCount = CalculateDecisionCount(decisions: decisions)
-        return calculateEntropy(decisions: decisions, decisionsCount: decisionsCount)
+        return calculateEntropy(decisions: decisions)
     }
     
-    func CalculateDecisionCount(decisions: AttributesCountMap) -> Double {
+    func CalculateDecisionCountFromAttributesMap(_ decisions: AttributesCountMap) -> Double {
         var decisionsCount: Double = 0
         for decision in decisions {
             decisionsCount += decision.value
@@ -27,11 +27,17 @@ final class EntropyCounterImpl: EntropyCounter {
         
         return decisionsCount
     }
+    
+    func CalculateEntropyForAttribute(decisionTreeTable: DecisionTreeTable, attribute: String) -> Double {
+        let decisions = decisionTreeTable.getDecisionsMapForAttribute(attribute)
+        return CalculateEntropy(decisions: decisions)
+    }
 }
 
 private extension EntropyCounterImpl {
     
-    func calculateEntropy(decisions: AttributesCountMap, decisionsCount: Double) -> Double {
+    func calculateEntropy(decisions: AttributesCountMap) -> Double {
+        let decisionsCount = CalculateDecisionCountFromAttributesMap(decisions)
         var entropy: Double = 0
         for decision in decisions {
             let p = Double(decision.value / decisionsCount)

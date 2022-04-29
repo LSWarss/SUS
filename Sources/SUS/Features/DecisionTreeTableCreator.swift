@@ -12,7 +12,7 @@ protocol DecisionTreeTableCreator {
     func CreateDecisionsTreeTable() -> DecisionTreeTable
 }
 
-final class DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
+struct DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     
     private let content: String
     
