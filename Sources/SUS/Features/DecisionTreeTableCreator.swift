@@ -9,7 +9,7 @@ import Foundation
 
 protocol DecisionTreeTableCreator {
     func CountAttributes() throws -> [AttributesCountMap]
-    func CreateDecisionsTreeTable() -> DecisionTreeTable
+    func CreateDecisionsTreeTable() throws -> DecisionTreeTable
 }
 
 struct DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
@@ -20,8 +20,13 @@ struct DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
         self.content = content
     }
     
-    func CreateDecisionsTreeTable() -> DecisionTreeTable {
+    func CreateDecisionsTreeTable() throws -> DecisionTreeTable {
         var table: [[String]] = []
+        
+        if content.isEmpty {
+            throw DecisionTreeTableError.emptyContent
+        }
+        
         content.enumerateLines { line, stop in
             let temp = line.split(separator: ",").map { String($0) }
             table.append(temp)
@@ -31,13 +36,13 @@ struct DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     }
     
     func CountAttributes() throws -> [AttributesCountMap] {
-        return createAttributesMapArray()
+        return try createAttributesMapArray()
     }
 }
 
 private extension DecisionTreeTableCreatorImpl {
     
-    func createAttributesMapArray() -> [AttributesCountMap] {
+    func createAttributesMapArray() throws -> [AttributesCountMap] {
         var attributes: [AttributesCountMap] = []
         content.enumerateLines { line, stop in
             let temp = line.split(separator: ",")
@@ -53,6 +58,10 @@ private extension DecisionTreeTableCreatorImpl {
                     }
                 }
             }
+        }
+        
+        if attributes.isEmpty {
+            throw AttributesCountMapError.emptyAttributesArray
         }
         
         return attributes
