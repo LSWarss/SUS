@@ -29,12 +29,36 @@ final class GainCounterTests : XCTestCase {
     
     let entropyCounter = EntropyCounterImpl()
 
-    func testCalculateGain() throws {
+    func testCalculateGainForMultipleAttributes() throws {
         let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let gotGains = gainCounter.CalculateGain(attributes: testAttributes)
+        let gotGains = try gainCounter.CalculateGainForMultipleAttributes(testAttributes)
         
         let wantGains = [0.6, 0.12451124978365313, 0.0]
         
         XCTAssertEqual(wantGains, gotGains)
+    }
+    
+    func testCalculateGainForSingleAttribute() throws {
+        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
+        let got = try gainCounter.CalculateGainForSingleAttribute(testAttributes.first!)
+        let want = 0.6
+        
+        XCTAssertEqual(got, want)
+    }
+    
+    func testCalculateGainRatio() throws {
+        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
+        
+        var got = try gainCounter.CalculateGainRatio(attribute: testAttributes.first!)
+        var want = 0.3819343537078458
+        XCTAssertEqual(got, want)
+        
+        got = try gainCounter.CalculateGainRatio(attribute: testAttributes[1])
+        want = 0.12823644219877584
+        XCTAssertEqual(got, want)
+        
+        got = try gainCounter.CalculateGainRatio(attribute: testAttributes[2])
+        want = 0.0
+        XCTAssertEqual(got, want)
     }
 }

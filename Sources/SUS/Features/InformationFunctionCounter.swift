@@ -8,7 +8,8 @@
 import Foundation
 
 protocol InformationFunctionCounter {
-    func CalculateInformationFunction(attributes: [AttributesCountMap]) -> [Double]
+    func CalculateInformationFunctionForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double]
+    func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double
 }
 
 struct InformationFunctionCounterImpl: InformationFunctionCounter {
@@ -21,7 +22,11 @@ struct InformationFunctionCounterImpl: InformationFunctionCounter {
         self.decisionTreeTable = decisionTreeTable
     }
     
-    func CalculateInformationFunction(attributes: [AttributesCountMap]) -> [Double] {
+    func CalculateInformationFunctionForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double] {
+        if attributes.isEmpty {
+            throw AttributesCountMapError.emptyAttributesArray
+        }
+        
         var tempInfFuncValue: Double = 0 // temporary information function value
         var attrResults: [Double] = []
         
@@ -34,5 +39,18 @@ struct InformationFunctionCounterImpl: InformationFunctionCounter {
         }
 
         return attrResults
+    }
+    
+    func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
+        if attribute.isEmpty {
+            throw AttributesCountMapError.emptyAttributesArray
+        }
+        
+        var tempInfFuncValue: Double = 0 // temporary information function value
+        for attr in attribute {
+            tempInfFuncValue +=  entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: attr.key) * (attr.value / decisionTreeTable.decisionsCount)
+        }
+        
+        return tempInfFuncValue
     }
 }

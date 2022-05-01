@@ -8,3 +8,7 @@
 import Foundation
 
 typealias AttributesCountMap = [String: Double]
+
+enum AttributesCountMapError: Error {
+    case emptyAttributesArray
+}

@@ -8,7 +8,9 @@
 import Foundation
 
 protocol GainCounter {
-    func CalculateGain(attributes: [AttributesCountMap]) -> [Double]
+    func CalculateGainForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double]
+    func CalculateGainForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double
+    func CalculateGainRatio(attribute: AttributesCountMap) throws -> Double
 }
 
 struct GainCounterImpl: GainCounter {
@@ -25,14 +27,30 @@ struct GainCounterImpl: GainCounter {
                                                                          decisionTreeTable: decisionTreeTable)
     }
     
-    func CalculateGain(attributes: [AttributesCountMap]) -> [Double] {
+    func CalculateGainForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double] {
         var tempGainValues: [Double] = []
-        let infoFuncAttributesValues = informationFunctionCounter.CalculateInformationFunction(attributes: attributes)
         
         for i in 0..<Int(decisionTreeTable.numberOfAttributes) {
-            tempGainValues.append(entropyCounter.CalculateEntropy(decisions: attributes.last ?? [:]) - infoFuncAttributesValues[i])
+            tempGainValues.append(try CalculateGainForSingleAttribute(attributes[i]))
         }
         
         return tempGainValues
+    }
+    
+    func CalculateGainForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
+        let informationFunctionValue = try informationFunctionCounter.CalculateInformationFunctionForSingleAttribute(attribute)
+        
+        return entropyCounter.CalculateEntropy(decisions: decisionTreeTable.decisionsMap) - informationFunctionValue
+    }
+    
+    func CalculateGainRatio(attribute: AttributesCountMap) throws -> Double {
+        return try CalculateGainForSingleAttribute(attribute) / calculateSplitInfo(attribute)
+    }
+}
+
+extension GainCounterImpl {
+    
+    func calculateSplitInfo(_ attribute: AttributesCountMap) -> Double {
+        return entropyCounter.CalculateEntropy(decisions: attribute)
     }
 }

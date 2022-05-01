@@ -11,6 +11,10 @@ struct DecisionTreeTable: Equatable {
     var table: [[String]]
 }
 
+enum DecisionTreeTableError: Error {
+    case emptyContent
+}
+
 extension DecisionTreeTable {
     
     var decisions: [String] {
@@ -52,6 +56,19 @@ extension DecisionTreeTable {
                 map[decisions[row]] = 1
             } else {
                 map[decisions[row]] = map[decisions[row]]!  + 1
+            }
+        }
+        
+        return map
+    }
+    
+    var decisionsMap: AttributesCountMap {
+        var map: AttributesCountMap = [:]
+        for decision in decisions {
+            if let number = map[String(decision)] {
+                map[String(decision)] = number + 1
+            } else {
+                map[String(decision)] = 1
             }
         }
         
