@@ -8,7 +8,6 @@
 import Foundation
 
 protocol DecisionTreeTableCreator {
-    func CountAttributes() throws -> [AttributesCountMap]
     func CreateDecisionsTreeTable() throws -> DecisionTreeTable
 }
 
@@ -33,37 +32,5 @@ struct DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
         }
         
         return DecisionTreeTable(table: table)
-    }
-    
-    func CountAttributes() throws -> [AttributesCountMap] {
-        return try createAttributesMapArray()
-    }
-}
-
-private extension DecisionTreeTableCreatorImpl {
-    
-    func createAttributesMapArray() throws -> [AttributesCountMap] {
-        var attributes: [AttributesCountMap] = []
-        content.enumerateLines { line, stop in
-            let temp = line.split(separator: ",")
-            
-            for (i, str) in temp.enumerated() {
-                if attributes.count <= i {
-                    attributes.append([String(str): 1])
-                } else {
-                    if let number = attributes[i][String(str)] {
-                        attributes[i][String(str)] = number + 1
-                    } else {
-                        attributes[i][String(str)] = 1
-                    }
-                }
-            }
-        }
-        
-        if attributes.isEmpty {
-            throw AttributesCountMapError.emptyAttributesArray
-        }
-        
-        return attributes
     }
 }

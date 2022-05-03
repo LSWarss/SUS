@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DecisionTreeTable: Equatable {
+struct DecisionTreeTable: Equatable, Codable {
     var table: [[String]]
 }
 
@@ -15,16 +15,8 @@ enum DecisionTreeTableError: Error {
     case emptyContent
 }
 
+// MARK: Functions
 extension DecisionTreeTable {
-    
-    var decisions: [String] {
-        return table.map { $0.last ?? "" }
-    }
- 
-    var attributes: [[String]] {
-        return table.map { $0.dropLast() }
-    }
-    
     func getRowNumbersWithAttribute(_ attribute: String) -> [Int] {
         var rows: [Int] = []
         for i in 0..<attributes.count {
@@ -51,14 +43,45 @@ extension DecisionTreeTable {
         
         return map
     }
+}
+
+// MARK: Variables
+extension DecisionTreeTable {
     
-    var decisionsMap: AttributesCountMap {
+    var decisions: [String] {
+        return table.map { $0.last ?? "" }
+    }
+ 
+    var attributes: [[String]] {
+        return table.map { $0.dropLast() }
+    }
+    
+    var decisionsCountMap: AttributesCountMap {
         var map: AttributesCountMap = [:]
         for decision in decisions {
             if let number = map[String(decision)] {
                 map[String(decision)] = number + 1
             } else {
                 map[String(decision)] = 1
+            }
+        }
+        
+        return map
+    }
+    
+    var attributesCountMap: [AttributesCountMap] {
+        var map: [AttributesCountMap] = []
+        for attribute in attributes {
+            for (i, attr) in attribute.enumerated() {
+                if map.count <= i {
+                    map.append([String(attr): 1])
+                } else {
+                    if let number = map[i][String(attr)] {
+                        map[i][String(attr)] = number + 1
+                    } else {
+                        map[i][String(attr)] = 1
+                    }
+                }
             }
         }
         
