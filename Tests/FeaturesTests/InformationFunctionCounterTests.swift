@@ -30,7 +30,7 @@ final class InformationFunctionCounterTests : XCTestCase {
 
     func testCalculateInformationFunctionForMultipleAttributes() throws {
         let informationFuncCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let informationValue = try informationFuncCounter.CalculateInformationFunctionForMultipleAttributes(testAttributes)
+        let informationValue = try informationFuncCounter.CalculateInformationFunctionForMultipleAttributes(testAttributes.dropLast())
         let wantInformationValue = [0.4, 0.8754887502163469, 1.0]
         
         XCTAssertEqual(wantInformationValue, informationValue)

@@ -27,18 +27,9 @@ struct InformationFunctionCounterImpl: InformationFunctionCounter {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-        var tempInfFuncValue: Double = 0 // temporary information function value
-        var attrResults: [Double] = []
-        
-        for attribute in attributes.dropLast() {
-            for attr in attribute {
-                tempInfFuncValue += entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: attr.key) * (attr.value / decisionTreeTable.decisionsCount)
-            }
-            attrResults.append(tempInfFuncValue)
-            tempInfFuncValue = 0
+        return try attributes.map {
+            try CalculateInformationFunctionForSingleAttribute($0)
         }
-
-        return attrResults
     }
     
     func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
@@ -46,11 +37,8 @@ struct InformationFunctionCounterImpl: InformationFunctionCounter {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-        var tempInfFuncValue: Double = 0 // temporary information function value
-        for attr in attribute {
-            tempInfFuncValue +=  entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: attr.key) * (attr.value / decisionTreeTable.decisionsCount)
-        }
-        
-        return tempInfFuncValue
+        return attribute
+            .map { entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: $0.key) * ($0.value / decisionTreeTable.decisionsCount) }
+            .reduce(0, +)
     }
 }

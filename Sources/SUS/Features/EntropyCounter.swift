@@ -20,12 +20,9 @@ struct EntropyCounterImpl: EntropyCounter {
     }
     
     func CalculateDecisionCountFromAttributesMap(_ decisions: AttributesCountMap) -> Double {
-        var decisionsCount: Double = 0
-        for decision in decisions {
-            decisionsCount += decision.value
-        }
-        
-        return decisionsCount
+        return decisions
+            .map { $0.value }
+            .reduce(0, +)
     }
     
     func CalculateEntropyForAttribute(decisionTreeTable: DecisionTreeTable, attribute: String) -> Double {
@@ -38,12 +35,10 @@ private extension EntropyCounterImpl {
     
     func calculateEntropy(decisions: AttributesCountMap) -> Double {
         let decisionsCount = CalculateDecisionCountFromAttributesMap(decisions)
-        var entropy: Double = 0
-        for decision in decisions {
-            let p = Double(decision.value / decisionsCount)
-            entropy += p * log2(p)
-        }
-        
+        let entropy = decisions
+            .map { (Double($0.value) / decisionsCount) * log2(Double($0.value) / decisionsCount) }
+            .reduce(0, +)
+
         return -entropy
     }
 }

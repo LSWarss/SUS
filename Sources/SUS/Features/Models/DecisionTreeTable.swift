@@ -18,21 +18,11 @@ enum DecisionTreeTableError: Error {
 extension DecisionTreeTable {
     
     var decisions: [String] {
-        var decisions: [String] = []
-        for row in table {
-            decisions.append(row.last ?? "")
-        }
-        
-        return decisions
+        return table.map { $0.last ?? "" }
     }
  
     var attributes: [[String]] {
-        var attributes: [[String]] = []
-        for row in table {
-            attributes.append(row.dropLast())
-        }
-        
-        return attributes
+        return table.map { $0.dropLast() }
     }
     
     func getRowNumbersWithAttribute(_ attribute: String) -> [Int] {
