@@ -141,21 +141,6 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
         XCTAssertEqual(got, want)
     }
     
-    func testGetMaxGain() throws {
-        let table: DecisionTreeTable = DecisionTreeTable(table: testingTable)
-        
-        let got = try table.getMaxGainRatio()
-        let want = 0.3819343537078458
-        
-        XCTAssertEqual(got, want)
-    }
-    
-    func testGetMaxGainError() throws {
-        let table: DecisionTreeTable = DecisionTreeTable(table: [])
-        
-        XCTAssertThrowsError(try table.getMaxGainRatio())
-    }
-    
     func testNumberOfAttributes() throws {
         var table: DecisionTreeTable = DecisionTreeTable(table: testingTable)
         var got = table.numberOfAttributes

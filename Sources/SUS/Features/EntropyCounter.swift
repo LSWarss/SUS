@@ -40,7 +40,7 @@ private extension EntropyCounterImpl {
     
     func calculateEntropy(of treeTable: DecisionTreeTable) -> Double {
         let entropy = treeTable.decisionsCountMap
-            .map { (Double($0.value) / treeTable.decisionsCount) * log2(Double($0.value) / treeTable.decisionsCount) }
+            .map { ($0.value / treeTable.decisionsCount) * (log2($0.value / treeTable.decisionsCount)) }
             .reduce(0, +)
         return -entropy
     }

@@ -51,30 +51,6 @@ extension DecisionTreeTable {
         return map
     }
     
-    func getMaxGainRatio() throws -> Double {
-        let gainCounter = GainCounterImpl(entropyCounter: EntropyCounterImpl(), decisionTreeTable: self)
-        
-        guard let max = try gainCounter.CalculateGainRatioForMultipleAttributes(attributes: self.attributesCountMap).max() else {
-            throw DecisionTreeTableError.wrongGainRatioCalculation
-        }
-        
-        return max
-    }
-    
-    func getAttributeToDivideBy() throws -> (attributes: AttributesCountMap,index: Int) {
-        let gainCounter = GainCounterImpl(entropyCounter: EntropyCounterImpl(), decisionTreeTable: self)
-        
-        let ratios = try gainCounter.CalculateGainRatioForMultipleAttributes(attributes: self.attributesCountMap)
-        
-        guard let max = try gainCounter.CalculateGainRatioForMultipleAttributes(attributes: self.attributesCountMap).max() else {
-            throw DecisionTreeTableError.wrongGainRatioCalculation
-        }
-        
-        let value = ratios.firstIndex { $0 == max } ?? 0
-        
-        return (attributesCountMap[value], value)
-    }
-    
     func getSubTable(indexes: [Int]) -> DecisionTreeTable {
         let subTable = indexes.map { table[$0] }
         return DecisionTreeTable(table: subTable)

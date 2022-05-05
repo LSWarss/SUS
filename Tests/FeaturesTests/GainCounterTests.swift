@@ -10,7 +10,6 @@ import XCTest
 
 final class GainCounterTests : XCTestCase {
     
-    let testAttributes: [AttributesCountMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
     let testTable: DecisionTreeTable = DecisionTreeTable(table: [
         ["old", "yes", "swr", "down"],
         ["old", "no", "swr", "down"],
@@ -27,61 +26,57 @@ final class GainCounterTests : XCTestCase {
     let failAttributes: [AttributesCountMap] = []
     let emptyTestTable: DecisionTreeTable = DecisionTreeTable(table: [])
     
-    let entropyCounter = EntropyCounterImpl()
-
-    func testCalculateGainForMultipleAttributes() throws {
-        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let gotGains = try gainCounter.CalculateGainForMultipleAttributes(testAttributes.dropLast())
-        
-        let wantGains = [0.6, 0.12451124978365313, 0.0]
-        
-        XCTAssertEqual(wantGains, gotGains)
+    var entropyCounter: EntropyCounter?
+    var infCounter: InformationFunctionCounter?
+    var gainCounter: GainCounter?
+    
+    override func setUp() async throws {
+        entropyCounter = EntropyCounterImpl()
+        infCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter!)
+        gainCounter = GainCounterImpl(entropyCounter: entropyCounter!, informationFunctionCounter: infCounter!)
     }
     
-    func testCalculateGainForSingleAttribute() throws {
-        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let got = try gainCounter.CalculateGainForSingleAttribute(testAttributes.first!)
-        let want = 0.6
+    func testCalculateGainForSingleAttributesCountMap() throws {
+        var got = try gainCounter!.CalculateGainForSingleAttributesCountMap(testTable.attributesCountMap[0], in: testTable)
+        var want = 0.6
+        XCTAssertEqual(got, want, "Gain for first attribute of testTable should be 0.6")
         
-        XCTAssertEqual(got, want)
+        got = try gainCounter!.CalculateGainForSingleAttributesCountMap(testTable.attributesCountMap[1], in: testTable)
+        want = 0.12451124978365313
+        XCTAssertEqual(got, want, "Gain for second attribute of testTable should be 0.6")
+        
+        got = try gainCounter!.CalculateGainForSingleAttributesCountMap(testTable.attributesCountMap[2], in: testTable)
+        want = 0.0
+        XCTAssertEqual(got, want, "Gain for third attribute of testTable should be 0.6")
     }
     
-    func testCalculateGainRatioForSingleAttribute() throws {
-        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        
-        var got = try gainCounter.CalculateGainRatioForSingleAttribute(attribute: testAttributes.first!)
+    func testCalculateGainRatioForSingleAttributesCountMap() throws {
+        var got = try gainCounter!.CalculateGainRatioForSingleAttributesCountMap(testTable.attributesCountMap[0], in: testTable)
         var want = 0.3819343537078458
         XCTAssertEqual(got, want)
-        
-        got = try gainCounter.CalculateGainRatioForSingleAttribute(attribute: testAttributes[1])
+
+        got = try gainCounter!.CalculateGainRatioForSingleAttributesCountMap(testTable.attributesCountMap[1], in: testTable)
         want = 0.12823644219877584
         XCTAssertEqual(got, want)
-        
-        got = try gainCounter.CalculateGainRatioForSingleAttribute(attribute: testAttributes[2])
+
+        got = try gainCounter!.CalculateGainRatioForSingleAttributesCountMap(testTable.attributesCountMap[2], in: testTable)
         want = 0.0
         XCTAssertEqual(got, want)
     }
     
-    func testCalculateGainRatioForMultipleAttributes() throws {
-        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let got = try gainCounter.CalculateGainRatioForMultipleAttributes(attributes: testAttributes.dropLast())
-        let want = [0.3819343537078458, 0.12823644219877584, 0.0]
+    func testCalculateSplitInfo() throws {
+        let got = gainCounter!.CalculateSplitInfo(testTable.attributesCountMap[0], in: testTable)
+        let want = 1.5709505944546684
         
         XCTAssertEqual(got, want)
     }
     
-    func testCalculateGainRatioForMultipleAttributesWithOneAttribute() throws {
-        let table = [["mid", "yes", "swr", "down"],
-                     ["mid", "yes", "hwr", "down"],
-                     ["mid", "no", "hwr", "up"],
-                     ["mid", "no", "swr", "up"]]
-        
-        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: DecisionTreeTable(table: table))
-        let gotGains = try gainCounter.CalculateGainRatioForMultipleAttributes(attributes: testAttributes.dropLast())
-        
-        let wantGains = [0.75, 0.375, 1.0]
-        
-        XCTAssertEqual(wantGains, gotGains)
+
+    func testCalculateGainRatioForMultipleAttributes() throws {
+        let got = try gainCounter!.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: testTable.attributesCountMap, in: testTable)
+        let want = [0.3819343537078458, 0.12823644219877584, 0.0]
+
+        XCTAssertEqual(got.ratios, want)
+        XCTAssertEqual(got.max, 0.3819343537078458)
     }
-    
 }
