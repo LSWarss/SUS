@@ -8,49 +8,47 @@
 import Foundation
 
 protocol InformationFunctionCounter {
-    func CalculateInformationFunctionForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double]
-    func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double
+    func CalculateInformationFunctionForAllAttributeColumns(in treeTable: DecisionTreeTable) throws -> [Double]
+    func CalculateInformationFunctionForAttributesMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double
 }
 
 struct InformationFunctionCounterImpl: InformationFunctionCounter {
-    
     private let entropyCounter: EntropyCounter
-    var decisionTreeTable: DecisionTreeTable
     
-    init(entropyCounter: EntropyCounter, decisionTreeTable: DecisionTreeTable) {
+    init(entropyCounter: EntropyCounter) {
         self.entropyCounter = entropyCounter
-        self.decisionTreeTable = decisionTreeTable
     }
     
-    func CalculateInformationFunctionForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double] {
-        if attributes.isEmpty {
+    /**
+     Calculates Information Function based on calculating entropy by decision classes, for all attribute columns in the given tree table.
+     - Parameters:
+        - treeTable: DecisionTreeTable of which attribute columns are going be be counted
+     - Returns: Array of information function results for column
+     */
+    func CalculateInformationFunctionForAllAttributeColumns(in treeTable: DecisionTreeTable) throws -> [Double] {
+        if treeTable.attributesCountMap.isEmpty {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-        var tempInfFuncValue: Double = 0 // temporary information function value
-        var attrResults: [Double] = []
-        
-        for attribute in attributes.dropLast() {
-            for attr in attribute {
-                tempInfFuncValue += entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: attr.key) * (attr.value / decisionTreeTable.decisionsCount)
-            }
-            attrResults.append(tempInfFuncValue)
-            tempInfFuncValue = 0
+        return try treeTable.attributesCountMap.map {
+            try CalculateInformationFunctionForAttributesMap($0, in: treeTable)
         }
-
-        return attrResults
     }
     
-    func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
-        if attribute.isEmpty {
+    /**
+     Calculates Information Function for given attribute count map.
+     - Parameters:
+        - attributeMap: Given attribute count map ( for instance ["old" : 3]) for which keys to calculate the information function.
+        - treeTable: DecisionTreeTable of which attribute columns are going be be counted
+     - Returns: Information function result
+     */
+    func CalculateInformationFunctionForAttributesMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double {
+        if attributesMap.isEmpty {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-        var tempInfFuncValue: Double = 0 // temporary information function value
-        for attr in attribute {
-            tempInfFuncValue +=  entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: attr.key) * (attr.value / decisionTreeTable.decisionsCount)
-        }
-        
-        return tempInfFuncValue
+        return attributesMap
+            .map {  ($0.value / treeTable.decisionsCount) * entropyCounter.CalculateEntropyForAttribute($0.key, in: treeTable) }
+            .reduce(0, +)
     }
 }

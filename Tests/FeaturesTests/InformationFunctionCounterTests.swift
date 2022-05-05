@@ -10,8 +10,7 @@ import XCTest
 @testable import SUS
 
 final class InformationFunctionCounterTests : XCTestCase {
-    
-    let testAttributes: [AttributesCountMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
+
     let testTable: DecisionTreeTable = DecisionTreeTable(table: [
         ["old", "yes", "swr", "down"],
         ["old", "no", "swr", "down"],
@@ -24,28 +23,27 @@ final class InformationFunctionCounterTests : XCTestCase {
         ["new", "no", "hwr", "up"],
         ["new", "no", "swr", "up"]
     ])
+    
     let failAttributes: [AttributesCountMap] = []
     let emptyTestTable: DecisionTreeTable = DecisionTreeTable(table: [])
-    let entropyCounter = EntropyCounterImpl()
+    let infCounter = InformationFunctionCounterImpl(entropyCounter: EntropyCounterImpl())
 
-    func testCalculateInformationFunctionForMultipleAttributes() throws {
-        let informationFuncCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let informationValue = try informationFuncCounter.CalculateInformationFunctionForMultipleAttributes(testAttributes)
-        let wantInformationValue = [0.4, 0.8754887502163469, 1.0]
+    func testCalculateInformationFunctionForAllAttributeColumns() throws {
+        let got = try infCounter.CalculateInformationFunctionForAllAttributeColumns(in: testTable)
+        let want = [0.4, 0.8754887502163469, 1.0]
         
-        XCTAssertEqual(wantInformationValue, informationValue)
+        XCTAssertEqual(got, want)
     }
     
-    func testCalculateInformationFunctionForNoAttributes() throws {
-        let informationFuncCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: emptyTestTable)
-        XCTAssertThrowsError(try informationFuncCounter.CalculateInformationFunctionForMultipleAttributes(failAttributes))
-    }
-    
-    func testCalculateInformationForSingleAttribute() throws {
-        let informationFuncCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: testTable)
-        let informationValue = try informationFuncCounter.CalculateInformationFunctionForSingleAttribute(testAttributes.first!)
-        let wantInformationValue: Double = 0.4
+    func testCalculateInformationFunctionForAttributesMap() throws {
+        var got = try infCounter.CalculateInformationFunctionForAttributesMap(testTable.attributesCountMap[0], in: testTable)
+        var want = 0.4
+        XCTAssertEqual(got, want)
         
-        XCTAssertEqual(wantInformationValue, informationValue)
+        let subTable = testTable.getSubTable(for: "old")
+        print(subTable.attributesCountMap)
+        got = try infCounter.CalculateInformationFunctionForAttributesMap(subTable.attributesCountMap[0], in: subTable)
+        want = 0.0
+        XCTAssertEqual(got, want)
     }
 }

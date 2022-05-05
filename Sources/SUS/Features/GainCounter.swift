@@ -8,49 +8,67 @@
 import Foundation
 
 protocol GainCounter {
-    func CalculateGainForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double]
-    func CalculateGainForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double
-    func CalculateGainRatio(attribute: AttributesCountMap) throws -> Double
+    func CalculateGainForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double
+    func CalculateGainRatioForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double
+    func CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: [AttributesCountMap], in treeTable: DecisionTreeTable) throws -> (ratios: [Double], maxRatio: Double, maxRatioIndex: Int)
+    func CalculateSplitInfo(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) -> Double
 }
 
 struct GainCounterImpl: GainCounter {
-    
-    private let entropyCounter: EntropyCounter
     private let informationFunctionCounter: InformationFunctionCounter
-    let decisionTreeTable: DecisionTreeTable
+    private let entropyCounter: EntropyCounter
     
     init(entropyCounter: EntropyCounter,
-         decisionTreeTable: DecisionTreeTable) {
+         informationFunctionCounter: InformationFunctionCounter) {
         self.entropyCounter = entropyCounter
-        self.decisionTreeTable = decisionTreeTable
-        self.informationFunctionCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter,
-                                                                         decisionTreeTable: decisionTreeTable)
+        self.informationFunctionCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter)
     }
     
-    func CalculateGainForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double] {
-        var tempGainValues: [Double] = []
+    /**
+     Calculates Gain for single attribute count map, in given decision tree table. Which is subtract difference between decision class entropy and information function for given attribute map.
+     - Parameters:
+        - attributesMap: Single attribute count map for which to count the gain (for instace ["old": 3, "mid": 4, "new":3]
+        - treeTable: Decisions Tree Table for which to calculate the decision class based entropy and inf functions.
+     - Returns: Result in double of the gain calculation.
+     */
+    func CalculateGainForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double {
+        let informationFunctionValue = try informationFunctionCounter.CalculateInformationFunctionForAttributesMap(attributesMap, in: treeTable)
+        return entropyCounter.CalculateEntropy(of: treeTable) - informationFunctionValue
+    }
+    
+    /**
+     Calculates Gain Ratio for single attribute count map, in given decision tree table. Which is gain devided by split info function result.
+     - Parameters:
+        - attributesMap: Single attribute count map for which to count the gain ratio (for instace ["old": 3, "mid": 4, "new":3]
+        - treeTable: Decisions Tree Table for which to calculate the decision class based entropy and inf functions.
+     - Returns: Result in double of the gain ratio calculation
+     */
+    func CalculateGainRatioForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double {
+        return try CalculateGainForSingleAttributesCountMap(attributesMap, in: treeTable) / CalculateSplitInfo(attributesMap, in: treeTable)
+    }
+    
+    /**
+     Calculates Gain Ratios for array of attribute count maps, in given decision tree table.
+     - Parameters:
+        - attributesMapsArray: Array fo attribute count maps for which to count the gain ratios (for instace ["old": 3, "mid": 4, "new":3]
+        - treeTable: Decisions Tree Table for which to calculate the decision class based entropy and inf functions.
+     - Returns: Result in array of doubles of the gain ratios calculation and max gain ratio of them all
+     */
+    func CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: [AttributesCountMap], in treeTable: DecisionTreeTable) throws -> (ratios: [Double], maxRatio: Double, maxRatioIndex: Int) {
+        let ratios = try attributesMapsArray
+            .map { try CalculateGainRatioForSingleAttributesCountMap($0, in: treeTable) }
         
-        for i in 0..<Int(decisionTreeTable.numberOfAttributes) {
-            tempGainValues.append(try CalculateGainForSingleAttribute(attributes[i]))
-        }
+        SUSLogger.shared.info("Ratios: \(ratios)")
+        let maxRatio = ratios.max() ?? 0
+        SUSLogger.shared.info("Max: \(maxRatio)")
+        let index = ratios.firstIndex { $0 == maxRatio }
         
-        return tempGainValues
+        return (ratios, maxRatio, index ?? 0)
     }
     
-    func CalculateGainForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
-        let informationFunctionValue = try informationFunctionCounter.CalculateInformationFunctionForSingleAttribute(attribute)
-        
-        return entropyCounter.CalculateEntropy(decisions: decisionTreeTable.decisionsMap) - informationFunctionValue
-    }
-    
-    func CalculateGainRatio(attribute: AttributesCountMap) throws -> Double {
-        return try CalculateGainForSingleAttribute(attribute) / calculateSplitInfo(attribute)
-    }
-}
-
-extension GainCounterImpl {
-    
-    func calculateSplitInfo(_ attribute: AttributesCountMap) -> Double {
-        return entropyCounter.CalculateEntropy(decisions: attribute)
+    func CalculateSplitInfo(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) -> Double {
+        return -attributesMap
+            .map { ($0.value / treeTable.decisionsCount) * (log2($0.value / treeTable.decisionsCount)) }
+            .reduce(0, +)
     }
 }

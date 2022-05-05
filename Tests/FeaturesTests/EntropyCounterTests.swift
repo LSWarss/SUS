@@ -11,7 +11,6 @@ import XCTest
 
 class EntropyCounterTests: XCTestCase {
 
-    let testAttributes: [AttributesCountMap] = [["new": 3, "old": 3, "mid": 4], ["no": 6, "yes": 4], ["hwr": 4, "swr": 6], ["down": 5, "up": 5]]
     let testTable: DecisionTreeTable = DecisionTreeTable(table: [
         ["old", "yes", "swr", "down"],
         ["old", "no", "swr", "down"],
@@ -25,43 +24,54 @@ class EntropyCounterTests: XCTestCase {
         ["new", "no", "swr", "up"]
     ])
     
+    let testTable2: DecisionTreeTable = DecisionTreeTable(table: [
+        ["old", "yes", "swr", "down"],
+        ["old", "no", "swr", "front"],
+        ["old", "no", "hwr", "down"],
+        ["mid", "yes", "swr", "down"],
+        ["mid", "yes", "hwr", "front"],
+        ["mid", "no", "hwr", "up"],
+        ["mid", "no", "swr", "up"],
+        ["new", "yes", "swr", "up"],
+        ["new", "no", "hwr", "up"],
+    ])
+    
     let failAttributes: [AttributesCountMap] = []
     let entopyCounter = EntropyCounterImpl()
     
     func testCalculateEntropy() throws {
-        let entropyValue = entopyCounter.CalculateEntropy(decisions: testAttributes.last ?? [:])
-        let wantEntropyValue = 1.0
+        var got = entopyCounter.CalculateEntropy(of: testTable)
+        var want = 1.0
+        XCTAssertEqual(got, want)
         
-        XCTAssertEqual(wantEntropyValue, entropyValue)
+        got = entopyCounter.CalculateEntropy(of: testTable2)
+        want = 1.5304930567574826
+        XCTAssertEqual(got, want)
     }
-    
-    func testCalculateEntropySmall() throws {
-        let smallAttributes: AttributesCountMap = ["down": 3]
-        
-        let entropyValue = entopyCounter.CalculateEntropy(decisions: smallAttributes)
-        let wantEntropyValue = -0.0
-        
-        XCTAssertEqual(wantEntropyValue, entropyValue)
-    }
-    
-    func testCalculateDecisionCount() throws {
-        let decisions: AttributesCountMap = ["down": 5, "up": 5]
-        
-        let decisionCount = entopyCounter.CalculateDecisionCountFromAttributesMap(decisions)
-        XCTAssertEqual(decisionCount, 10)
-    }
-    
+
     func testCalculateEntropyForAttribute() throws {
-        var attribute: String = "old"
-        var entropy = entopyCounter.CalculateEntropyForAttribute(decisionTreeTable: testTable, attribute: attribute)
-        XCTAssertEqual(entropy, 0.0)
+        var got = entopyCounter.CalculateEntropyForAttribute("mid", in: testTable)
+        var want = 1.0
+        XCTAssertEqual(got, want, "Value of entropy for 'mid' should be 1.0")
         
-        attribute = "mid"
-        entropy = entopyCounter.CalculateEntropyForAttribute(decisionTreeTable: testTable, attribute: attribute)
-        XCTAssertEqual(entropy, 1.0)
+        got = entopyCounter.CalculateEntropyForAttribute("old", in: testTable)
+        want = 0.0
+        XCTAssertEqual(got, want, "Value of entropy for 'old' should be 0.0")
         
-        attribute = "new"
-        entropy = entopyCounter.CalculateEntropyForAttribute(decisionTreeTable: testTable, attribute: attribute)
-        XCTAssertEqual(entropy, 0.0)
+        got = entopyCounter.CalculateEntropyForAttribute("new", in: testTable)
+        want = 0.0
+        XCTAssertEqual(got, want, "Value of entropy for 'new' should be 0.0")
+        
+        got = entopyCounter.CalculateEntropyForAttribute("new", in: testTable2)
+        want = 0.0
+        XCTAssertEqual(got, want, "Value of entropy for 'new' should be 0.0")
+        
+        got = entopyCounter.CalculateEntropyForAttribute("mid", in: testTable2)
+        want = 1.5
+        XCTAssertEqual(got, want, "Value of entropy for 'mid' should be 0.0")
+        
+        got = entopyCounter.CalculateEntropyForAttribute("old", in: testTable2)
+        want = 0.9182958340544896
+        XCTAssertEqual(got, want, "Value of entropy for 'new' should be 0.0")
     }
 }
