@@ -77,6 +77,6 @@ final class GainCounterTests : XCTestCase {
         let want = [0.3819343537078458, 0.12823644219877584, 0.0]
 
         XCTAssertEqual(got.ratios, want)
-        XCTAssertEqual(got.max, 0.3819343537078458)
+        XCTAssertEqual(got.maxRatio, 0.3819343537078458)
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 protocol GainCounter {
     func CalculateGainForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double
     func CalculateGainRatioForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double
-    func CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: [AttributesCountMap], in treeTable: DecisionTreeTable) throws -> (ratios: [Double], max: Double)
+    func CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: [AttributesCountMap], in treeTable: DecisionTreeTable) throws -> (ratios: [Double], maxRatio: Double, maxRatioIndex: Int)
     func CalculateSplitInfo(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) -> Double
 }
 
@@ -54,14 +54,16 @@ struct GainCounterImpl: GainCounter {
         - treeTable: Decisions Tree Table for which to calculate the decision class based entropy and inf functions.
      - Returns: Result in array of doubles of the gain ratios calculation and max gain ratio of them all
      */
-    func CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: [AttributesCountMap], in treeTable: DecisionTreeTable) throws -> (ratios: [Double], max: Double) {
+    func CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: [AttributesCountMap], in treeTable: DecisionTreeTable) throws -> (ratios: [Double], maxRatio: Double, maxRatioIndex: Int) {
         let ratios = try attributesMapsArray
             .map { try CalculateGainRatioForSingleAttributesCountMap($0, in: treeTable) }
         
         SUSLogger.shared.info("Ratios: \(ratios)")
         let maxRatio = ratios.max() ?? 0
         SUSLogger.shared.info("Max: \(maxRatio)")
-        return (ratios, maxRatio)
+        let index = ratios.firstIndex { $0 == maxRatio }
+        
+        return (ratios, maxRatio, index ?? 0)
     }
     
     func CalculateSplitInfo(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) -> Double {
