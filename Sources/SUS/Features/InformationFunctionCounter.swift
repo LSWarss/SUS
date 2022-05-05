@@ -37,8 +37,9 @@ struct InformationFunctionCounterImpl: InformationFunctionCounter {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-        return attribute
-            .map { entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: $0.key) * ($0.value / decisionTreeTable.decisionsCount) }
-            .reduce(0, +)
+//        return attribute
+//            .map { entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: $0.key) * ($0.value / decisionTreeTable.decisionsCount) }
+//            .reduce(0, +)
+        return 0
     }
 }

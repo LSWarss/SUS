@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  GainCounterTests.swift
 //  
 //
 //  Created by Łukasz Stachnik on 29/04/2022.
@@ -69,4 +69,19 @@ final class GainCounterTests : XCTestCase {
         
         XCTAssertEqual(got, want)
     }
+    
+    func testCalculateGainRatioForMultipleAttributesWithOneAttribute() throws {
+        let table = [["mid", "yes", "swr", "down"],
+                     ["mid", "yes", "hwr", "down"],
+                     ["mid", "no", "hwr", "up"],
+                     ["mid", "no", "swr", "up"]]
+        
+        let gainCounter = GainCounterImpl(entropyCounter: entropyCounter, decisionTreeTable: DecisionTreeTable(table: table))
+        let gotGains = try gainCounter.CalculateGainRatioForMultipleAttributes(attributes: testAttributes.dropLast())
+        
+        let wantGains = [0.75, 0.375, 1.0]
+        
+        XCTAssertEqual(wantGains, gotGains)
+    }
+    
 }
