@@ -8,38 +8,34 @@
 import Foundation
 
 protocol InformationFunctionCounter {
-    func CalculateInformationFunctionForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double]
-    func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double
+    func CalculateInformationFunctionForAllAttributeColumns(in treeTable: DecisionTreeTable) throws -> [Double]
+    func CalculateInformationFunctionForAttributesMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double
 }
 
 struct InformationFunctionCounterImpl: InformationFunctionCounter {
-    
     private let entropyCounter: EntropyCounter
-    var decisionTreeTable: DecisionTreeTable
     
-    init(entropyCounter: EntropyCounter, decisionTreeTable: DecisionTreeTable) {
+    init(entropyCounter: EntropyCounter) {
         self.entropyCounter = entropyCounter
-        self.decisionTreeTable = decisionTreeTable
     }
     
-    func CalculateInformationFunctionForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double] {
-        if attributes.isEmpty {
+    func CalculateInformationFunctionForAllAttributeColumns(in treeTable: DecisionTreeTable) throws -> [Double] {
+        if treeTable.attributesCountMap.isEmpty {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-        return try attributes.map {
-            try CalculateInformationFunctionForSingleAttribute($0)
+        return try treeTable.attributesCountMap.map {
+            try CalculateInformationFunctionForAttributesMap($0, in: treeTable)
         }
     }
     
-    func CalculateInformationFunctionForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
-        if attribute.isEmpty {
+    func CalculateInformationFunctionForAttributesMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double {
+        if attributesMap.isEmpty {
             throw AttributesCountMapError.emptyAttributesArray
         }
         
-//        return attribute
-//            .map { entropyCounter.CalculateEntropyForAttribute(decisionTreeTable: decisionTreeTable, attribute: $0.key) * ($0.value / decisionTreeTable.decisionsCount) }
-//            .reduce(0, +)
-        return 0
+        return attributesMap
+            .map {  ($0.value / treeTable.decisionsCount) * entropyCounter.CalculateEntropyForAttribute($0.key, in: treeTable) }
+            .reduce(0, +)
     }
 }

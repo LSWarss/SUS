@@ -23,10 +23,7 @@ struct EntropyCounterImpl: EntropyCounter {
      - Returns: Entropy value in double. For instance for decisions counts: **["down": 5, "up": 5]**.it will be **1.0**.
      */
     func CalculateEntropy(of treeTable: DecisionTreeTable) -> Double {
-        SUSLogger.shared.log(level: .info, "Attributes: \(treeTable.attributes.description)")
-        
-        let entropyValue = calculateEntropy(of: treeTable)
-        return entropyValue
+        return calculateEntropy(of: treeTable)
     }
     
     /**
@@ -35,7 +32,6 @@ struct EntropyCounterImpl: EntropyCounter {
      */
     func CalculateEntropyForAttribute(_ attribute: String, in treeTable: DecisionTreeTable) -> Double {
         let subTable = treeTable.getSubTable(for: attribute)
-        SUSLogger.shared.log(level: .info, "Attributes: \(subTable.attributes.description)")
         return calculateEntropy(of: subTable)
     }
 }
@@ -43,11 +39,9 @@ struct EntropyCounterImpl: EntropyCounter {
 private extension EntropyCounterImpl {
     
     func calculateEntropy(of treeTable: DecisionTreeTable) -> Double {
-        SUSLogger.shared.log(level: .info, "Decisions Count Map: \(treeTable.decisionsCountMap)")
         let entropy = treeTable.decisionsCountMap
             .map { (Double($0.value) / treeTable.decisionsCount) * log2(Double($0.value) / treeTable.decisionsCount) }
             .reduce(0, +)
-        SUSLogger.shared.log(level: .info, "Entropy: \(-entropy)")
         return -entropy
     }
 }

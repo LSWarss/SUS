@@ -24,8 +24,7 @@ struct GainCounterImpl: GainCounter {
          decisionTreeTable: DecisionTreeTable) {
         self.entropyCounter = entropyCounter
         self.decisionTreeTable = decisionTreeTable
-        self.informationFunctionCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter,
-                                                                         decisionTreeTable: decisionTreeTable)
+        self.informationFunctionCounter = InformationFunctionCounterImpl(entropyCounter: entropyCounter)
     }
     
     func CalculateGainForMultipleAttributes(_ attributes: [AttributesCountMap]) throws -> [Double] {
@@ -35,7 +34,7 @@ struct GainCounterImpl: GainCounter {
     }
     
     func CalculateGainForSingleAttribute(_ attribute: AttributesCountMap) throws -> Double {
-        let informationFunctionValue = try informationFunctionCounter.CalculateInformationFunctionForSingleAttribute(attribute)
+//        let informationFunctionValue = try informationFunctionCounter.CalculateInformationFunctionForSingleAttribute(attribute)
 //        return entropyCounter.CalculateEntropy(decisions: decisionTreeTable.decisionsCountMap) - informationFunctionValue
         return 0
     }
