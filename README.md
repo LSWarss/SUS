@@ -1,6 +1,6 @@
 # SUS
 
-[![Swift](https://github.com/LSWarss/SUS/actions/workflows/testing.yml/badge.svg)](https://github.com/LSWarss/SUS/actions/workflows/testing.yml)
+[![Tests](https://github.com/LSWarss/SUS-C4.5-Algorithm/actions/workflows/testing.yml/badge.svg?branch=main)](https://github.com/LSWarss/SUS-C4.5-Algorithm/actions/workflows/testing.yml)
 
 ## Description
 
