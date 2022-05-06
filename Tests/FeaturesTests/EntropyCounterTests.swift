@@ -45,7 +45,7 @@ class EntropyCounterTests: XCTestCase {
         XCTAssertEqual(got, want)
         
         got = entopyCounter.CalculateEntropy(of: testTable2)
-        want = 1.5304930567574826
+        want = 1.5304930567574824
         XCTAssertEqual(got, want)
     }
 
