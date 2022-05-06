@@ -44,7 +44,9 @@ struct GainCounterImpl: GainCounter {
      - Returns: Result in double of the gain ratio calculation
      */
     func CalculateGainRatioForSingleAttributesCountMap(_ attributesMap: AttributesCountMap, in treeTable: DecisionTreeTable) throws -> Double {
-        return try CalculateGainForSingleAttributesCountMap(attributesMap, in: treeTable) / CalculateSplitInfo(attributesMap, in: treeTable)
+        let gain = try CalculateGainForSingleAttributesCountMap(attributesMap, in: treeTable)
+        let splitInfo = CalculateSplitInfo(attributesMap, in: treeTable)
+        return gain == 0 ? 0 : gain / splitInfo
     }
     
     /**
@@ -58,9 +60,7 @@ struct GainCounterImpl: GainCounter {
         let ratios = try attributesMapsArray
             .map { try CalculateGainRatioForSingleAttributesCountMap($0, in: treeTable) }
         
-        SUSLogger.shared.info("Ratios: \(ratios)")
         let maxRatio = ratios.max() ?? 0
-        SUSLogger.shared.info("Max: \(maxRatio)")
         let index = ratios.firstIndex { $0 == maxRatio }
         
         return (ratios, maxRatio, index ?? 0)

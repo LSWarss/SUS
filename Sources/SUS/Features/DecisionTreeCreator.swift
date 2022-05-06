@@ -23,30 +23,29 @@ struct DecisionTreeCreator {
         var root = Node(label: "", decisionTable: treeTable)
         try createTree(node: &root)
         
-        SUSLogger.shared.info("Decision Tree root: \(root)")
         return DecisionTree(root: root)
     }
     
     private func createTree(node: inout Node) throws {
-        let table = try node.getDecisionTreeTable()
-        SUSLogger.shared.info("Decision Table of node: \(table)")
+        let table = node.getDecisionTreeTable()
         
-        let maxRatio = try getMaxRatio(for: table)
-        if  maxRatio == 0 || maxRatio.isNaN {
-            node.setLabel("Decision Class")
-            SUSLogger.shared.info("Ending tree creation on node: \(node)")
+        if try getMaxRatio(for: table) == 0 {
+            node.setLabel(node.getDecisionTreeTable().decisionsCountMap.first?.key ?? "")
             return
         }
         
-        node.setLabel("\(try getIndexOfDiving(for: table))")
+        if node.getLabel() == "" {
+            node.setLabel("\(try getIndexOfDiving(for: table))")
+        }
         
         for attr in try getAttributeToDivideBy(for: table) {
             var child = Node(label: attr.key, decisionTable: table.getSubTable(for: attr.key))
-            node.addChild(child)
             try createTree(node: &child)
+            node.addChild(child)
         }
+        
+        SUSLogger.shared.info("Node: \(node.getLabel()) with children: \(node.getChildren())")
     }
-    
     
     private func getAttributeToDivideBy(for treeTable: DecisionTreeTable) throws -> AttributesCountMap {
         let (_, _, maxIndex) = try gainCounter.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: treeTable.attributesCountMap, in: treeTable)

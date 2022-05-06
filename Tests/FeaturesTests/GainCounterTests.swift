@@ -73,10 +73,16 @@ final class GainCounterTests : XCTestCase {
     
 
     func testCalculateGainRatioForMultipleAttributes() throws {
-        let got = try gainCounter!.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: testTable.attributesCountMap, in: testTable)
-        let want = [0.3819343537078458, 0.12823644219877584, 0.0]
+        var got = try gainCounter!.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: testTable.attributesCountMap, in: testTable)
+        var want = [0.3819343537078458, 0.12823644219877584, 0.0]
 
         XCTAssertEqual(got.ratios, want)
         XCTAssertEqual(got.maxRatio, 0.3819343537078458)
+        
+        let table =  testTable.getSubTable(for: "mid")
+        got = try gainCounter!.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: table.attributesCountMap, in: table)
+        want = [0.0, 1.0, 0.0]
+        XCTAssertEqual(got.ratios, want)
+        XCTAssertEqual(got.maxRatio, 1.0)
     }
 }
