@@ -30,12 +30,12 @@ struct Node: Codable, Equatable{
         children.append(node)
     }
     
-    func getDecisionTreeTable() throws -> DecisionTreeTable {
-        guard let decisionTable = decisionTable else {
-            throw DecisionTreeError.noDecisionTable
-        }
-
-        return decisionTable
+    func getChildren() -> [Node] {
+        return children
+    }
+    
+    func getDecisionTreeTable() -> DecisionTreeTable {
+        return decisionTable ?? DecisionTreeTable(table: [])
     }
     
     mutating func setLabel(_ text: String) {

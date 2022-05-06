@@ -45,8 +45,9 @@ class EntropyCounterTests: XCTestCase {
         XCTAssertEqual(got, want)
         
         got = entopyCounter.CalculateEntropy(of: testTable2)
-        want = 1.5304930567574826
-        XCTAssertEqual(got, want)
+        want = 1.5304930567574824
+        let want2 = 1.5304930567574826
+        XCTAssertTrue(got == want || got == want2)
     }
 
     func testCalculateEntropyForAttribute() throws {

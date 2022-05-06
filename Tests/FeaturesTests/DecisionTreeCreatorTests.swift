@@ -41,13 +41,19 @@ final class DecisionTreeCreatorTests: XCTestCase {
         var rootNode = Node(label: "0", decisionTable: DecisionTreeTable(table: testingTable))
         let childerNew = Node(label: "new", decisionTable: DecisionTreeTable(table: testingTable).getSubTable(for: "new"))
         let childerOld = Node(label: "old", decisionTable: DecisionTreeTable(table: testingTable).getSubTable(for: "old"))
-        let childerMid = Node(label: "mid", decisionTable: DecisionTreeTable(table: testingTable).getSubTable(for: "mid"))
+        var childerMid = Node(label: "mid", decisionTable: DecisionTreeTable(table: testingTable).getSubTable(for: "mid"))
         rootNode.addChild(childerNew)
         rootNode.addChild(childerOld)
         rootNode.addChild(childerMid)
+        let childrenYes = Node(label: "yes", decisionTable: DecisionTreeTable(table: testingTable).getSubTable(for: "mid").getSubTable(for: "yes"))
+        let childrenNo = Node(label: "no", decisionTable: DecisionTreeTable(table: testingTable).getSubTable(for: "mid").getSubTable(for: "no"))
+        childerMid.addChild(childrenYes)
+        childerMid.addChild(childrenNo)
         let want = DecisionTree(root: rootNode)
         
         XCTAssertEqual(got?.root.getLabel(), want.root.getLabel())
+        XCTAssertEqual(got?.root.getChildren().count, 3)
+        XCTAssertEqual(got?.root.getChildren().first { $0.getLabel() == "mid"}?.getChildren().count, 2)
         // TODO: Add more testing here
     }
 }
