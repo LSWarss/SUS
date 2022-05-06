@@ -20,12 +20,15 @@ struct Attributes: ParsableCommand {
     
     func run() throws {
         let localReader = LocalFileReader()
-        let localWriter = LocalFileWriter()
+        let treeCreator = DecisionTreeCreator(entropyCounter: EntropyCounterImpl())
+        
         let content = try localReader.readFile(inputFilePath: path)
         let creator = DecisionTreeTableCreatorImpl(content: content)
-        let attributes = try creator.CreateDecisionsTreeTable().attributes.description
+        let treeTable = try creator.CreateDecisionsTreeTable()
+        let tree = try treeCreator.CreateDecisionTree(from: treeTable)
         
-        SUSLogger.shared.info("\(attributes)")
-        try localWriter.writeToFile(fileName: "\(path.fileName())_Attributes.\(path.fileExtension())", content: attributes.data(using: .utf8))
+        treeCreator.Traverse(tree: tree)
+        
+//        try localWriter.writeToFile(fileName: "\(path.fileName())_Attributes.\(path.fileExtension())", content: attributes.data(using: .utf8))
     }
 }

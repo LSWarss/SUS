@@ -11,14 +11,27 @@ enum DecisionTreeError: Error {
     case noDecisionTable
 }
 
-struct DecisionTree: Codable, Equatable {
+class DecisionTree: Codable, Equatable {
+    static func == (lhs: DecisionTree, rhs: DecisionTree) -> Bool {
+        lhs.root.getDecisionTreeTable() == rhs.root.getDecisionTreeTable()
+    }
+    
+    init(root: Node) {
+        self.root = root
+    }
+    
     let root: Node
 }
 
-struct Node: Codable, Equatable{
+class Node: Codable, Equatable {
+    static func == (lhs: Node, rhs: Node) -> Bool {
+        lhs.label == rhs.label
+    }
+    
     private var label: String
     private let decisionTable: DecisionTreeTable?
     private var children: [Node]
+    private var branchLabel: String?
     
     init(label: String, decisionTable: DecisionTreeTable) {
         self.label = label
@@ -26,7 +39,7 @@ struct Node: Codable, Equatable{
         self.children = []
     }
     
-    mutating func addChild(_ node: Node) {
+    func addChild(_ node: Node) {
         children.append(node)
     }
     
@@ -38,11 +51,27 @@ struct Node: Codable, Equatable{
         return decisionTable ?? DecisionTreeTable(table: [])
     }
     
-    mutating func setLabel(_ text: String) {
+    func setLabel(_ text: String) {
         label = text
+    }
+    
+    func setBranchLabel(_ text: String) {
+        branchLabel = text
+    }
+    
+    func getBranchLabel() -> String?{
+        return branchLabel
     }
     
     func getLabel() -> String {
         return label
+    }
+    
+    var isLeaf: Bool {
+        return children.isEmpty
+    }
+    
+    var isRoot: Bool {
+        return branchLabel == ""
     }
 }
