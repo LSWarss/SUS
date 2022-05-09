@@ -58,8 +58,6 @@ extension DecisionTreeTable {
     
     func getSubTable(for attributeKey: String) -> DecisionTreeTable {
         let subTable = table.filter { $0.contains(attributeKey) }
-//        print("Subtable for attribute: \(attributeKey): \(subTable)")
-        
         return DecisionTreeTable(table: subTable)
     }
 }

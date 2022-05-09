@@ -25,12 +25,8 @@ struct Attributes: ParsableCommand {
         let content = try localReader.readFile(inputFilePath: path)
         let creator = DecisionTreeTableCreatorImpl()
         let treeTable = try creator.CreateDecisionsTreeTable(from: content)
-        
-        print(treeTable.table)
         let tree = try treeCreator.CreateDecisionTree(from: treeTable)
         
-//        treeCreator.Traverse(tree: tree)
-        
-//        try localWriter.writeToFile(fileName: "\(path.fileName())_Attributes.\(path.fileExtension())", content: attributes.data(using: .utf8))
+        treeCreator.Traverse(tree: tree)
     }
 }
