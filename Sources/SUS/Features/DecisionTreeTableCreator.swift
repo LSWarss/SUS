@@ -8,25 +8,19 @@
 import Foundation
 
 protocol DecisionTreeTableCreator {
-    func CreateDecisionsTreeTable() throws -> DecisionTreeTable
+    func CreateDecisionsTreeTable(from fileContent: String) throws -> DecisionTreeTable
 }
 
 struct DecisionTreeTableCreatorImpl: DecisionTreeTableCreator {
     
-    private let content: String
-    
-    init(content: String) {
-        self.content = content
-    }
-    
-    func CreateDecisionsTreeTable() throws -> DecisionTreeTable {
+    func CreateDecisionsTreeTable(from fileContent: String) throws -> DecisionTreeTable {
         var table: [[String]] = []
         
-        if content.isEmpty {
+        if fileContent.isEmpty {
             throw DecisionTreeTableError.emptyContent
         }
         
-        content.enumerateLines { line, stop in
+        fileContent.enumerateLines { line, stop in
             let temp = line.split(separator: ",").map { String($0) }
             table.append(temp)
         }

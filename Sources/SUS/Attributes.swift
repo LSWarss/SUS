@@ -23,12 +23,10 @@ struct Attributes: ParsableCommand {
         let treeCreator = DecisionTreeCreator(entropyCounter: EntropyCounterImpl())
         
         let content = try localReader.readFile(inputFilePath: path)
-        let creator = DecisionTreeTableCreatorImpl(content: content)
-        let treeTable = try creator.CreateDecisionsTreeTable()
+        let creator = DecisionTreeTableCreatorImpl()
+        let treeTable = try creator.CreateDecisionsTreeTable(from: content)
         let tree = try treeCreator.CreateDecisionTree(from: treeTable)
         
         treeCreator.Traverse(tree: tree)
-        
-//        try localWriter.writeToFile(fileName: "\(path.fileName())_Attributes.\(path.fileExtension())", content: attributes.data(using: .utf8))
     }
 }

@@ -15,6 +15,9 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log")
+            ],
+            resources: [
+                .process("Data")
             ]),
         .testTarget(
             name: "HelpersTests",

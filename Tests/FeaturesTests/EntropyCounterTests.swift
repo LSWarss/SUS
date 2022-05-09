@@ -10,6 +10,7 @@ import XCTest
 @testable import SUS
 
 class EntropyCounterTests: XCTestCase {
+    let fileReader = LocalFileReader()
 
     let testTable: DecisionTreeTable = DecisionTreeTable(table: [
         ["old", "yes", "swr", "down"],
@@ -74,5 +75,21 @@ class EntropyCounterTests: XCTestCase {
         got = entopyCounter.CalculateEntropyForAttribute("old", in: testTable2)
         want = 0.9182958340544896
         XCTAssertEqual(got, want, "Value of entropy for 'new' should be 0.0")
+    }
+    
+    func testCalculateEntropyForBigDataSet() throws {
+        guard let path = Bundle.module.path(forResource: "car", ofType: "data") else {
+            XCTFail()
+            return
+        }
+        let content = try fileReader.readFile(inputFilePath: path)
+        let treeCreator = DecisionTreeTableCreatorImpl()
+        let treeTable = try treeCreator.CreateDecisionsTreeTable(from: content)
+        
+        let got = preciseRound(entopyCounter.CalculateEntropy(of: treeTable), precision: .hundredths) 
+        let want = preciseRound(1.205740970012175, precision: .hundredths)
+        
+        SUSLogger.shared.info("Got: \(got) want \(want)")
+        XCTAssertEqual(got, want)
     }
 }

@@ -88,16 +88,14 @@ extension DecisionTreeTable {
     
     var attributesCountMap: [AttributesCountMap] {
         var map: [AttributesCountMap] = []
-        for attribute in attributes {
-            for (i, attr) in attribute.enumerated() {
+        for row in attributes {
+            for i in 0..<row.count {
                 if map.count <= i {
-                    map.append([String(attr): 1])
+                    map.append([row[i]: 1])
+                } else if let number = map[i][row[i]] {
+                    map[i][row[i]] = number + 1
                 } else {
-                    if let number = map[i][String(attr)] {
-                        map[i][String(attr)] = number + 1
-                    } else {
-                        map[i][String(attr)] = 1
-                    }
+                    map[i][row[i]] = 1
                 }
             }
         }
@@ -109,7 +107,7 @@ extension DecisionTreeTable {
         return Double(decisions.count)
     }
     
-    var numberOfAttributes: Double {
+    var numberOfColumns: Double {
         return Double(table.first?.dropLast().count ?? 0)
     }
 }

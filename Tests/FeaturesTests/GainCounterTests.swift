@@ -9,6 +9,7 @@ import XCTest
 @testable import SUS
 
 final class GainCounterTests : XCTestCase {
+    let fileReader = LocalFileReader()
     
     let testTable: DecisionTreeTable = DecisionTreeTable(table: [
         ["old", "yes", "swr", "down"],
@@ -41,13 +42,13 @@ final class GainCounterTests : XCTestCase {
         var want = 0.6
         XCTAssertEqual(got, want, "Gain for first attribute of testTable should be 0.6")
         
-        got = try gainCounter!.CalculateGainForSingleAttributesCountMap(testTable.attributesCountMap[1], in: testTable)
-        want = 0.12451124978365313
-        XCTAssertEqual(got, want, "Gain for second attribute of testTable should be 0.6")
+        got = preciseRound(try gainCounter!.CalculateGainForSingleAttributesCountMap(testTable.attributesCountMap[1], in: testTable), precision: .hundredths)
+        want = 0.12
+        XCTAssertEqual(got, want, "Gain for second attribute of testTable should be 0.12")
         
         got = try gainCounter!.CalculateGainForSingleAttributesCountMap(testTable.attributesCountMap[2], in: testTable)
         want = 0.0
-        XCTAssertEqual(got, want, "Gain for third attribute of testTable should be 0.6")
+        XCTAssertEqual(got, want, "Gain for third attribute of testTable should be 0.0")
     }
     
     func testCalculateGainRatioForSingleAttributesCountMap() throws {
@@ -84,5 +85,23 @@ final class GainCounterTests : XCTestCase {
         want = [0.0, 1.0, 0.0]
         XCTAssertEqual(got.ratios, want)
         XCTAssertEqual(got.maxRatio, 1.0)
+    }
+    
+    func testCalculateGainRatioForMultipleAttributesOnBigDataset() throws {
+        guard let path = Bundle.module.path(forResource: "car", ofType: "data") else {
+            XCTFail()
+            return
+        }
+        let content = try fileReader.readFile(inputFilePath: path)
+        let treeCreator = DecisionTreeTableCreatorImpl()
+        let treeTable = try treeCreator.CreateDecisionsTreeTable(from: content)
+        SUSLogger.shared.info("Tree table: \(treeTable.attributesCountMap)")
+        let got = try gainCounter!.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: treeTable.attributesCountMap, in: testTable)
+        let want = [-0.00106517214711502, -0.00106517214711502, -0.00106517214711502, -0.0009895759401908056, -0.0009895759401908056, -0.0009895759401908056]
+        SUSLogger.shared.info("Got: \(got.ratios) want \(want)")
+        XCTAssertEqual(got.ratios, want)
+        
+        SUSLogger.shared.info("Got: \(got.maxRatio) want \( -0.0009895759401908056)")
+        XCTAssertEqual(got.maxRatio,  -0.0009895759401908056)
     }
 }
