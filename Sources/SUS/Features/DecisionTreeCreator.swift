@@ -26,6 +26,26 @@ struct DecisionTreeCreator {
         return DecisionTree(root: root)
     }
     
+    private func createTree(node: inout Node) throws {
+        let treeTable = node.getDecisionTreeTable()
+        
+        if try getMaxRatio(for: treeTable) == 0 {
+            node.setBranchLabel(node.getDecisionTreeTable().decisionsCountMap.first?.key ?? "")
+            return
+        }
+        
+        let indexOfDividing = try getIndexOfDiving(for: treeTable)
+        if node.getLabel() == "" {
+            node.setLabel("\(indexOfDividing)")
+        }
+        
+        for value in try getDividingAttrWithIndexes(for: treeTable, indexOfDividing: indexOfDividing) {
+            var child = Node(label: value.0, decisionTable: treeTable.getSubTable(indexes: value.1))
+            node.addChild(child)
+            try createTree(node: &child)
+        }
+    }
+    
     func Traverse(tree: DecisionTree) {
         traverseTree(node: tree.root, indent: "")
     }
@@ -45,23 +65,24 @@ struct DecisionTreeCreator {
         }
     }
     
-    private func createTree(node: inout Node) throws {
-        let table = node.getDecisionTreeTable()
+    func getDividingAttrWithIndexes(for treeTable: DecisionTreeTable, indexOfDividing: Int) throws -> [(String, [Int])] {
+        let attributesToDivide = try getAttributeToDivideBy(for: treeTable)
+        var indicies: [[Int]] = []
         
-        if try getMaxRatio(for: table) == 0 {
-            node.setBranchLabel(node.getDecisionTreeTable().decisionsCountMap.first?.key ?? "")
-            return
+        for attr in attributesToDivide {
+            var tempArray: [Int] = []
+            for index in 0..<treeTable.table.count {
+                if treeTable.table[index][indexOfDividing] == attr.key {
+                    tempArray.append(index)
+                }
+            }
+            indicies.append(tempArray)
+            tempArray = []
         }
         
-        if node.getLabel() == "" {
-            node.setLabel("\(try getIndexOfDiving(for: table))")
-        }
         
-        for attr in try getAttributeToDivideBy(for: table) {
-            var child = Node(label: attr.key, decisionTable: table.getSubTable(for: attr.key))
-            node.addChild(child)
-            try createTree(node: &child)
-        }
+        let attrWithIndexes = zip(attributesToDivide.map { $0.key }, indicies).map { $0 }
+        return attrWithIndexes
     }
     
     private func getAttributeToDivideBy(for treeTable: DecisionTreeTable) throws -> AttributesCountMap {

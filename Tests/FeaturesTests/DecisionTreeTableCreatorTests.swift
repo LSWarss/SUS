@@ -36,14 +36,21 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
     ]
     
     var creator: DecisionTreeTableCreatorImpl?
+    let fileReader = LocalFileReader()
     
     override func setUp() async throws {
-        creator = DecisionTreeTableCreatorImpl(content: testingTableStringContent)
+        creator = DecisionTreeTableCreatorImpl()
     }
     
     func testCreateDecisionsTreeTable() throws {
+        guard let path = Bundle.module.path(forResource: "gielda", ofType: "txt") else {
+            XCTFail()
+            return
+        }
+        
+        let contentData = try fileReader.readFile(inputFilePath: path)
+        let got = try creator!.CreateDecisionsTreeTable(from: contentData)
         let want: DecisionTreeTable = DecisionTreeTable(table: testingTable)
-        let got = try creator!.CreateDecisionsTreeTable()
         
         XCTAssertEqual(want, got)
     }
@@ -51,7 +58,7 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
     func testDecisionTreeTableDecisionsArray() throws {
         let want: [String] = ["down","down","down","down","down", "up","up","up","up","up"]
         
-        let got = try creator!.CreateDecisionsTreeTable()
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent)
         
         XCTAssertEqual(want, got.decisions)
     }
@@ -59,7 +66,7 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
     func testDecisionCount() throws {
         let want = 10.0
         
-        let got = try creator!.CreateDecisionsTreeTable()
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent)
         
         XCTAssertEqual(want, got.decisionsCount)
     }
@@ -78,44 +85,42 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
             ["new", "no", "swr"]
         ]
         
-        let got = try creator!.CreateDecisionsTreeTable()
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent)
         
         XCTAssertEqual(want, got.attributes)
     }
     
     func testGetRowNumbersWithAttributeOld() throws {
-        let got = try creator!.CreateDecisionsTreeTable().getRowNumbersWithAttribute("old")
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent).getRowNumbersWithAttribute("old")
         let want = [0,1,2]
         
         XCTAssertEqual(got, want)
     }
     
     func testGetRowNumbersWithAttributeMid() throws {
-        let got = try creator!.CreateDecisionsTreeTable().getRowNumbersWithAttribute("mid")
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent).getRowNumbersWithAttribute("mid")
         let want = [3,4,5,6]
         
         XCTAssertEqual(got, want)
     }
     
     func testGetRowNumbersWithAttributeNew() throws {
-        let got = try creator!.CreateDecisionsTreeTable().getRowNumbersWithAttribute("new")
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent).getRowNumbersWithAttribute("new")
         let want = [7,8,9]
         
         XCTAssertEqual(got, want)
     }
     
     func testGetDecisionsMap() throws {
-        let got = try creator!.CreateDecisionsTreeTable().getDecisionsCountMapForAttribute("mid")
+        let got = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent).getDecisionsCountMapForAttribute("mid")
         let want: AttributesCountMap = ["down": 2, "up" : 2]
         
         XCTAssertEqual(got, want)
     }
     
     func testCountAttributes() throws {
-        let creator = DecisionTreeTableCreatorImpl(content: testingTableStringContent)
-            
         let wantAttributes: [AttributesCountMap] = [["mid": 4.0, "old": 3.0, "new": 3.0], ["yes": 4.0, "no": 6.0], ["hwr": 4.0, "swr": 6.0]]
-        let attributes: [AttributesCountMap] = try creator.CreateDecisionsTreeTable().attributesCountMap
+        let attributes: [AttributesCountMap] = try creator!.CreateDecisionsTreeTable(from: testingTableStringContent).attributesCountMap
         
         XCTAssertEqual(wantAttributes, attributes)
     }
@@ -143,12 +148,12 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
     
     func testNumberOfAttributes() throws {
         var table: DecisionTreeTable = DecisionTreeTable(table: testingTable)
-        var got = table.numberOfAttributes
+        var got = table.numberOfColumns
         var want: Double = 3
         XCTAssertEqual(got, want)
         
         table = DecisionTreeTable(table: [])
-        got = table.numberOfAttributes
+        got = table.numberOfColumns
         want = 0
         
         XCTAssertEqual(got, want)
@@ -166,5 +171,24 @@ final class DecisionTreeTableCreatorTests: XCTestCase {
         let want = DecisionTreeTable(table: wantTable)
         
         XCTAssertEqual(got, want)
+    }
+    
+    // MARK: Tests for big dataset (car)
+    func testGetAttributesOnBigDataset() throws {
+        guard let path = Bundle.module.path(forResource: "car", ofType: "data") else {
+            XCTFail()
+            return
+        }
+        let content = try fileReader.readFile(inputFilePath: path)
+        let treeCreator = DecisionTreeTableCreatorImpl()
+        let treeTable = try treeCreator.CreateDecisionsTreeTable(from: content)
+        
+        var got = treeTable.attributesCountMap[0]
+        var want: AttributesCountMap = ["med": 432.0, "vhigh": 432.0, "low": 432.0, "high": 432.0]
+        
+        SUSLogger.shared.info("Got: \(got) want \(want)")
+        XCTAssertEqual(got, want)
+        
+        XCTAssertEqual(treeTable.numberOfColumns, 6)
     }
 }

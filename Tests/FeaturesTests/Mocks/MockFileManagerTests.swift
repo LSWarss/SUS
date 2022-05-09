@@ -13,9 +13,6 @@ class MockFileManagerTests: XCTestCase {
     func testContentInput() throws {
         mockFileManger.mockContent = "Test"
         let data = mockFileManger.contents(atPath: "Some path")
-        
-        
         XCTAssertEqual(String(data: data!, encoding: .utf8), "Test")
     }
-    
 }

@@ -92,3 +92,4 @@ iOSInjectionProject/
 .swiftpm
 default.profraw
 Package.resolved
+.DS_Store

@@ -11,7 +11,7 @@ enum DecisionTreeError: Error {
     case noDecisionTable
 }
 
-class DecisionTree: Codable, Equatable {
+final class DecisionTree: Codable, Equatable {
     static func == (lhs: DecisionTree, rhs: DecisionTree) -> Bool {
         lhs.root.getDecisionTreeTable() == rhs.root.getDecisionTreeTable()
     }
@@ -23,7 +23,7 @@ class DecisionTree: Codable, Equatable {
     let root: Node
 }
 
-class Node: Codable, Equatable {
+final class Node: Codable, Equatable {
     static func == (lhs: Node, rhs: Node) -> Bool {
         lhs.label == rhs.label
     }
