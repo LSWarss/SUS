@@ -30,7 +30,8 @@ struct DecisionTreeCreator {
         let treeTable = node.getDecisionTreeTable()
         
         if try getMaxRatio(for: treeTable) == 0 {
-            node.setBranchLabel(node.getDecisionTreeTable().decisionsCountMap.first?.key ?? "")
+            let attr = node.getDecisionTreeTable().decisionsCountMap.max(by: { $0.value > $1.value})
+            node.setBranchLabel(attr?.key ?? "")
             return
         }
         
@@ -39,7 +40,12 @@ struct DecisionTreeCreator {
             node.setLabel("\(indexOfDividing)")
         }
         
-        for value in try getDividingAttrWithIndexes(for: treeTable, indexOfDividing: indexOfDividing) {
+        let attrWithIndexes = try getDividingAttrWithIndexes(for: treeTable, indexOfDividing: indexOfDividing)
+        if attrWithIndexes.count > 0 {
+            node.setBranchLabel("\(indexOfDividing)")
+        }
+        
+        for value in attrWithIndexes {
             var child = Node(label: value.0, decisionTable: treeTable.getSubTable(indexes: value.1))
             node.addChild(child)
             try createTree(node: &child)
@@ -99,7 +105,6 @@ struct DecisionTreeCreator {
     
     private func getMaxRatio(for treeTable: DecisionTreeTable) throws -> Double {
         let (_, max, _) = try gainCounter.CalculateGainRatioForAttributesCountMapArray(attributesMapsArray: treeTable.attributesCountMap, in: treeTable)
-        
         return max
     }
     
@@ -108,11 +113,11 @@ struct DecisionTreeCreator {
     }
     
     private func printNode(label: String, branchLabel: String, indent: String) {
-        print("\(indent)\(label) -> Attrybut \(branchLabel)")
+        print("\(indent)\(label) -> Attribute \(branchLabel)")
     }
     
     private func printRoot(label: String) {
-        print("Attrybut: \(label)")
+        print("Attribute: \(label)")
     }
 }
 
